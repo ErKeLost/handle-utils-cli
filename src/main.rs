@@ -1,35 +1,13 @@
 use clap::Parser;
+use rcli::{process_csv, Opts, SubCommand};
 
-#[derive(Debug, Parser)]
-#[command(name = "adny", version, about)]
-struct Opts {
-    #[command(subcommand)]
-    cmd: SubCommand,
-}
-
-
-#[derive(Debug, Parser)]
-enum  SubCommand {
-    #[command(name = "csv", about = "show CSV transformation")]
-    Csv(CsvOpts),
-}
-
-#[derive(Debug, Parser)]
-struct CsvOpts {
-    #[arg(short, long)]
-    input: String,
-    // default_value 实现了 FromStr 的 trait
-    #[arg(short, long, default_value = "output.json")]
-    output: String,
-
-    #[arg(short, long, default_value_t = ',')]
-    delimiter: char,
-
-    #[arg(short, long, default_value_t = true)]
-    header: bool,
-}
-
-fn main() {
+fn main() -> anyhow::Result<()> {
     let opts = Opts::parse();
-    println!("{:?}", opts)
+    match opts.cmd {
+        SubCommand::Csv(csv_opts) => {
+            process_csv(&csv_opts.input, &csv_opts.output)?;
+        }
+    };
+
+    Ok(())
 }
